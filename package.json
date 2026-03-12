@@ -18,7 +18,7 @@
     "preview": "vite preview",
     "build:check": "pnpm run build",
     "build:server": "pnpm run build && go build",
-    "build:electron": "cross-env ELECTRON_BUILD=1 pnpm run build && electron-builder",
+    "build:electron": "cross-env ELECTRON_BUILD=1 vue-tsc -b && vite build --config vite.config.electron.ts && node update-build-date.js && electron-builder",
     "build:android": "pnpm run build && npx cap sync android",
     "build:apk": "pnpm run build:android && cd android && ./gradlew assembleRelease"
   },
