@@ -39,7 +39,6 @@ const plugins = [
   })
 ]
 
-// @ts-expect-error - Vite CSS transformer type
 export default defineConfig({
   // Cloudflare Pages 走绝对路径，Electron/本地文件走相对路径
   base: isCloudflarePages ? '/' : './',
