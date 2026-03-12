@@ -10,35 +10,6 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 const isCloudflarePages = process.env.CF_PAGES === '1' || process.env.CF_PAGES === 'true'
 
-const plugins = [
-  vue(),
-  tailwindcss(),
-  VitePWA({
-    registerType: 'autoUpdate',
-    manifest: {
-      name: pkg.name,
-      short_name: pkg.title,
-      description: 'Conquer the stars',
-      theme_color: '#000000',
-      background_color: '#000000',
-      display: 'fullscreen',
-      orientation: 'any',
-      icons: [{ src: 'logo.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' }]
-    },
-    workbox: {
-      globPatterns: ['**/*.{js,css,html,ico,png,svg,mp3,wav,json}'],
-      maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
-      runtimeCaching: [
-        {
-          urlPattern: ({ request }) => request.destination === 'image' || request.destination === 'audio',
-          handler: 'CacheFirst', // 优先使用缓存
-          options: { cacheName: 'game-assets', expiration: { maxEntries: 100, maxAgeSeconds: 30 * 24 * 60 * 60 } }
-        }
-      ]
-    }
-  })
-]
-
 export default defineConfig({
   // Cloudflare Pages 走绝对路径，Electron/本地文件走相对路径
   base: isCloudflarePages ? '/' : './',
@@ -82,7 +53,34 @@ export default defineConfig({
       }
     }
   },
-  plugins,
+  plugins: [
+    vue(),
+    tailwindcss(),
+    VitePWA({
+      registerType: 'autoUpdate',
+      manifest: {
+        name: pkg.name,
+        short_name: pkg.title,
+        description: 'Conquer the stars',
+        theme_color: '#000000',
+        background_color: '#000000',
+        display: 'fullscreen',
+        orientation: 'any',
+        icons: [{ src: 'logo.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' }]
+      },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,mp3,wav,json}'],
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
+        runtimeCaching: [
+          {
+            urlPattern: ({ request }) => request.destination === 'image' || request.destination === 'audio',
+            handler: 'CacheFirst', // 优先使用缓存
+            options: { cacheName: 'game-assets', expiration: { maxEntries: 100, maxAgeSeconds: 30 * 24 * 60 * 60 } }
+          }
+        ]
+      }
+    })
+  ],
   resolve: { alias: { '@': path.resolve(__dirname, './src') } },
   css: {
     // 使用 lightningcss 处理 CSS，自动转换 oklch 等新语法为兼容格式
