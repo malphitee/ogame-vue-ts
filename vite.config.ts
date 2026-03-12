@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import tailwindcss from '@tailwindcss/vite'
 import path from 'node:path'
@@ -9,7 +9,14 @@ import pkg from './package.json'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 // @ts-expect-error - Vite CSS transformer type
-export default defineConfig(async () => {
+export default defineConfig(async ({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '')
+  const isElectronBuild = Boolean(process.env.ELECTRON_BUILD)
+  const isCloudflarePages =
+    process.env.CF_PAGES === '1' ||
+    process.env.CF_PAGES === 'true' ||
+    env.CF_PAGES === '1' ||
+    env.CF_PAGES === 'true'
   const plugins = [
     vue(),
     tailwindcss(),
@@ -40,7 +47,7 @@ export default defineConfig(async () => {
   ]
 
   // 只在 ELECTRON_BUILD 环境变量存在时才加载 Electron 插件
-  if (process.env.ELECTRON_BUILD) {
+  if (isElectronBuild) {
     // @ts-ignore - 动态导入 electron 插件
     const { default: electron } = await import('vite-plugin-electron/simple')
     const electronPlugins = await electron({
@@ -53,7 +60,8 @@ export default defineConfig(async () => {
   }
 
   return {
-    base: './',
+    // Cloudflare Pages 走绝对路径，Electron/本地文件走相对路径
+    base: isCloudflarePages ? '/' : './',
     build: {
       outDir: 'dist',
       sourcemap: false,
