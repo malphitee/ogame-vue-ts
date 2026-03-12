@@ -55,7 +55,7 @@ export default defineConfig(async () => {
   return {
     base: './',
     build: {
-      outDir: 'docs',
+      outDir: 'dist',
       sourcemap: false,
       cssCodeSplit: true,
       chunkSizeWarningLimit: 1000,
